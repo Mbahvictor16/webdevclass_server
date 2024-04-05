@@ -11,7 +11,9 @@ const {
 const app = express();
 
 mongoose
-  .connect("mongodb+srv://mbahvictor16:E61eFbsD3JefwizQ@webdevusers.g0hwey2.mongodb.net/?retryWrites=true&w=majority&appName=webdevusers")
+  .connect(
+    "mongodb+srv://mbahvictor16:E61eFbsD3JefwizQ@webdevusers.g0hwey2.mongodb.net/?retryWrites=true&w=majority&appName=webdevusers"
+  )
   .then((logged) => console.log("connected"));
 
 app.use(cors());
@@ -43,8 +45,8 @@ app.post("/api/users/register", async (req, res) => {
   const newUser = await Users.create({
     firstName,
     lastName,
-    userName,
-    email,
+    userName: userName.trim(),
+    email: email.toLowerCase().trim(),
     password: hashedPassword,
   });
 
@@ -55,7 +57,7 @@ app.post("/api/users/register", async (req, res) => {
 app.post("/api/users/login", async (req, res) => {
   const { userNameorEmail, password } = req.body;
 
-  if(userNameorEmail == undefined) {
+  if (userNameorEmail == undefined) {
     return res.status(404).json({
       response: null,
       err: true,
@@ -64,7 +66,10 @@ app.post("/api/users/login", async (req, res) => {
   }
 
   const findUser = await Users.findOne({
-    $or: [{ userName: userNameorEmail }, { email: userNameorEmail }],
+    $or: [
+      { userName: userNameorEmail.trim() },
+      { email: userNameorEmail.toLowerCase().trim() },
+    ],
   });
 
   if (!findUser) {
@@ -91,11 +96,11 @@ app.post("/api/users/login", async (req, res) => {
       lastName: findUser.lastName,
       userName: findUser.userName,
       email: findUser.email,
-      id: findUser._id
+      id: findUser._id,
     },
     err: false,
     errMsg: null,
-  })
+  });
 });
 
 app.listen(3000);
